@@ -1,6 +1,5 @@
-// Host entry. STATICALLY imports the shared-singleton cycle through gamma, so
-// gamma -> beta -> alpha are part of the initial synchronous module graph and
-// are evaluated as soon as the entry chunk runs.
-import { renderApp } from '@spike/gamma';
+// Host entry. Statically imports @spike/core so host auto-init eagerly preloads
+// the shared singleton set before this entry executes.
+import { renderCore } from '@spike/core';
 
-renderApp(document.getElementById('app'));
+renderCore(document.getElementById('app'));

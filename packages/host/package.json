@@ -11,11 +11,13 @@
   "dependencies": {
     "@spike/alpha": "workspace:*",
     "@spike/beta": "workspace:*",
-    "@spike/gamma": "workspace:*"
+    "@spike/core": "workspace:*",
+    "@spike/gamma": "workspace:*",
+    "@spike/hooks": "workspace:*"
   },
   "devDependencies": {
     "@module-federation/enhanced": "2.5.1",
-    "@module-federation/vite": "1.16.8",
+    "@module-federation/vite": "https://pkg.pr.new/@module-federation/vite@819",
     "vite": "^8.0.0"
   }
 }

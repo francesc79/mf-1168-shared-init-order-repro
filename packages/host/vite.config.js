@@ -1,17 +1,28 @@
 import { federation } from '@module-federation/vite';
 import { defineConfig } from 'vite';
 
-// Three workspace packages shared as SINGLETONS, forming a dependency CYCLE:
-//   gamma -> beta -> alpha -> gamma
+// Repro for PR 819 follow-up: root shared package + shared subpath.
 //
-// beta uses alpha's default export (`logging.getLogger(...)`) SYNCHRONOUSLY at
-// module top level. Because the cycle gives Module Federation no safe
-// "dependency-first" order for the eager init loop, beta's chunk can be
-// evaluated while alpha's loadShare wrapper is still deferred -> alpha's
-// `logging` binding is `undefined` -> beta throws at evaluation time.
+// @spike/core depends on the ROOT package @spike/hooks and synchronously uses
+// BaseEvent at module-evaluation time (class extends BaseEvent).
 //
-// The shared keys are listed beta/gamma BEFORE alpha to bias the init loop
-// toward resolving a consumer before its producer.
+// The host also shares @spike/hooks/media. In @module-federation/vite@819,
+// orderSharedDependenciesFirst builds a map keyed by getPackageName(sharedKey):
+//
+//   @spike/hooks       -> package name @spike/hooks
+//   @spike/hooks/media -> package name @spike/hooks
+//
+// The subpath overwrites the root package in that map. When ordering
+// @spike/core dependency on @spike/hooks, the algorithm visits
+// @spike/hooks/media instead of @spike/hooks. The generated hostInit preload
+// order becomes:
+//
+//   @spike/hooks/media, @spike/core, @spike/hooks
+//
+// Loading @spike/core before the root @spike/hooks cache is populated makes
+// the generated @spike/hooks loadShare wrapper export BaseEvent as undefined,
+// and @spike/core throws: Class extends value undefined is not a constructor
+// or null.
 export default defineConfig({
   plugins: [
     federation({
@@ -24,9 +35,9 @@ export default defineConfig({
         './app': './src/app.js',
       },
       shared: {
-        '@spike/beta': { singleton: true },
-        '@spike/gamma': { singleton: true },
-        '@spike/alpha': { singleton: true },
+        '@spike/core': { singleton: true },
+        '@spike/hooks': { singleton: true },
+        '@spike/hooks/media': { singleton: true },
       },
       runtime: 'enhanced',
       shareStrategy: 'version-first',
