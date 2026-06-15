@@ -1,0 +1,12 @@
+{
+  "name": "@spike/alpha",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "dependencies": {
+    "@spike/gamma": "workspace:*"
+  }
+}

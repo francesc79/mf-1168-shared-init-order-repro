@@ -1,0 +1,9 @@
+{
+  "name": "mf-1168-shared-init-order-repro",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "pnpm --filter @repro/host build",
+    "preview": "pnpm --filter @repro/host preview"
+  }
+}
